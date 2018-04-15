@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "PointTwoD.h"
 
-class NewEntryInput : PointTwoD
+class NewEntryInput
 {
 private:
 	//========= Messages ==========//
@@ -12,6 +12,11 @@ private:
 	//========= Internal Variables ==========//
 	int maxInputCount;
 	int ignoreCharacterCount;
+
+	int tempX, tempY;
+	int numEarthLikePlanets, numEarthLikeMoons;
+	string newSunType;
+	float particleDensity, plasmaDensity;
 	//========= Internal Variables ==========//
 
 	//========= Input States ==========//
@@ -45,17 +50,6 @@ private:
 
 	//========= Required Variables ==========//
 	PointTwoD newData;
-	LocationData newLD;	
-
-	//the coordinates
-	int tempX, tempY;
-
-	//the new location data
-	string newSunType;
-	int numEarthLikePlanets;
-	int numEarthLikeMoons;
-	float particleDensity;
-	float plasmaDensity;
 	//========= Required Variables ==========//
 	
 public:
@@ -64,17 +58,6 @@ public:
 	~NewEntryInput();
 	//========= Constructor and Destructor ==========//
 	
-	//========= Get Functions ==========//
-	int GetTempX();
-	int GetTempY();
-	string GetNewSunType();
-	int GetNumEarthLikePlanets();
-	int GetNumEarthLikeMoons();
-	float GetParticleDensity();
-	float GetPlasmaDensity();
-	//========= Get Functions ==========//
-
-
 	//========= Input State Functions ==========//
 	void DisplayPrompts();
 	void CheckInput();

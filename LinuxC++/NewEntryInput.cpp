@@ -194,21 +194,23 @@ void NewEntryInput::CheckIntValue(UpdateInts targetIntVar)
 			//cout << numEarthLikeMoons << endl;
 			break;
 		}
+		
 		currentState = INPUT_PASS;
 	}
 }
 
 void NewEntryInput::CheckStringValue()
 {
-	//get the entire line. the user needs to press enter bar twice here
+	//discard newline
+	//get the entire line
 	getline(cin, newSunType);
 
 	//do an error check to see if the input is valid
-	if(GetLocationData().CheckSunTypeInput(newSunType))
+	if(newData.GetLocationData().CheckSunTypeInput(newSunType))
 	{
 		//if it returns as positive, send to pass state
 		//cout << "pass" << endl;
-		//cout << newSunType << endl;
+		
 		currentState = INPUT_PASS;
 	}
 	else
@@ -246,8 +248,7 @@ void NewEntryInput::RegisterNewItem()
 
 
 	//at the end of it, construct an object
-	newLD = LocationData(newSunType, numEarthLikePlanets, numEarthLikeMoons, particleDensity, plasmaDensity);
-	newData = PointTwoD(tempX, tempY, newLD);
+	newData = PointTwoD(tempX, tempY, newSunType, numEarthLikePlanets, numEarthLikeMoons, particleDensity, plasmaDensity);
 	
 	//test that the data input is correct
  	//cout << newData.ToString() << endl;

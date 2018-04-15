@@ -37,23 +37,19 @@ void MissionPlan::OnStandby()
 	case 3:		//explore destination
 		theState = EXPLORE_DESTINATIONS;
 		break;
-	case 4:		//all explore destinations
-		theState = EXPLORE_ALL_DESTINATIONS;
-		break;
-	case 5:		//travel distance, top 5
+	case 4:		//travel distance, top 5
 		theState = TRAVEL_DISTANCE;
 		break;
-	case 6:		//all travel distance
-		theState = INDIVIDUAL_TRAVEL_DISTANCE;
-		break;
-	case 7:		//print detailed entries
+	case 5:		//print detailed entries
 		theState = SHOW_ALL_ENTRIES;
 		break;
-	case 8:		//quit
+	case 6:		//quit
 		theState = QUIT;
 		break;
 	default:
 		cout << "Choice invalid. Please try again." << endl;
+		cin.clear();
+		cin.ignore();
 		OnStandby();		//recursion function to be done here since the user needs to do a new input
 		break;
 	}
@@ -78,14 +74,8 @@ void MissionPlan::main()
 		case EXPLORE_DESTINATIONS:
 			PrintExplorationDestinations();
 			break;
-		case EXPLORE_ALL_DESTINATIONS:
-			PrintAllExplorationDestinations();
-			break;
 		case TRAVEL_DISTANCE:
 			PrintTravelDistance();
-			break;
-		case INDIVIDUAL_TRAVEL_DISTANCE:
-			PrintIndividualTravelDistance();
 			break;
 		case SHOW_ALL_ENTRIES:
 			PrintAllEntries();
@@ -150,10 +140,10 @@ void MissionPlan::ComputeCivIndex()
 		int noOfEarthLikeMoons = spaceData[lastPointCalculated].GetLocationData().GetNumEarthLikeMoons();
 		float aveParticleDensity = spaceData[lastPointCalculated].GetLocationData().GetParticleDensity();
 		float avePlasmaDensity = spaceData[lastPointCalculated].GetLocationData().GetPlasmaDensity();
-		
+	
 		//use the calculation and set the result into civIndex
 		spaceData[lastPointCalculated].SetCivIndex(LocationData::CalculateCivIndex(sunType, noOfEarthLikePlanets, noOfEarthLikeMoons, aveParticleDensity, avePlasmaDensity));
-		
+		cout << spaceData[lastPointCalculated].ToString() << endl;
 		//increment the last point calculated
 		lastPointCalculated++;
 	}
@@ -170,7 +160,80 @@ void MissionPlan::ComputeCivIndex()
 	//return to standby mode
 	theState = STANDBY;
 }
-void MissionPlan::CalculateTopEntries(int totalEntries, int maxEntries, int next, PointTwoD currentList[])
+
+bool MissionPlan::NextEntryIsLarger(PointTwoD current, PointTwoD next, DataSortType targetData)
+{
+	//check if next entry is larger. if not, it will return false.
+	switch(targetData)	
+	{
+	case X_COORD:
+		return (current.GetXCoordinate() < next.GetXCoordinate());
+		break;
+	case Y_COORD:
+		return (current.GetYCoordinate() < next.GetYCoordinate());
+		break;
+	}		
+	//return false by default
+	return false;
+}
+
+void MissionPlan::SortAscendingOrderArray(int totalEntries, PointTwoD currentList[], DataSortType targetData)
+{
+	int next;
+	//sort the current list by civ index
+	for(int current = 0; current < totalEntries; current++)
+	{
+		if(current != totalEntries -1)
+		{
+			//mark the next variable to be ahead of current by 1
+			next = current + 1;
+			if(!NextEntryIsLarger(currentList[current], currentList[next], targetData))
+			{
+				PointTwoD temp;
+				temp = currentList[current];
+
+				//swap their places
+				currentList[current] = currentList[next];
+				currentList[next] = temp;
+			}
+			next++;
+		}
+	}
+}
+
+void MissionPlan::SortDescendingOrderArray(int totalEntries, PointTwoD currentList[], DataSortType targetData)
+{
+	int next;
+	//sort the current list by civ index
+	for(int current = 0; current < totalEntries; current++)
+	{
+		if(current != totalEntries -1)
+		{
+			//mark the next variable to be ahead of current by 1
+			next = current + 1;
+		
+			//loop through the entire list using next
+			while(next < totalEntries)
+			{
+				//if the next entry value is larger than the current entry value
+						
+
+				if(NextEntryIsLarger(currentList[current], currentList[next], targetData))
+				{
+					PointTwoD temp;
+					temp = currentList[current];
+
+					//swap their places
+					currentList[current] = currentList[next];
+					currentList[next] = temp;
+				}
+				next++;
+			}
+		}
+	}
+}
+
+void MissionPlan::CalculateTopEntries(int totalEntries, int maxEntries, PointTwoD currentList[])
 {
 	//consider the situation where the max num of entries < 5
 	if(totalEntries < maxEntries)
@@ -185,29 +248,7 @@ void MissionPlan::CalculateTopEntries(int totalEntries, int maxEntries, int next
 		currentList[i] = spaceData[i];
 	}	
 	
-
-	//sort the current list by civ index
-	for(int current = 0; current < totalEntries; current++)
-	{
-		//mark the next variable to be ahead of current by 1
-		next = current + 1;
-		
-		//loop through the entire list using next
-		while(next < totalEntries)
-		{
-			//if the next entry value is larger than the current entry value
-			if(currentList[current].GetCivIndex() < currentList[next].GetCivIndex())
-			{
-				PointTwoD temp;
-				temp = currentList[current];
-
-				//swap their places
-				currentList[current] = currentList[next];
-				currentList[next] = temp;
-			}
-			next++;
-		}
-	}
+	SortDescendingOrderArray(totalEntries, currentList, CIV_INDEX);
 }
 
 void MissionPlan::PrintDestinationEntriesFormula(int minNum,int maxNum, PointTwoD targetArray[])
@@ -223,28 +264,21 @@ void MissionPlan::PrintDestinationEntriesFormula(int minNum,int maxNum, PointTwo
 		}		
 	}
 }
-void MissionPlan::PrintAllExplorationDestinations()
-{
-	cout << "Displaying all possible destinations.. " << endl;	
-	PrintDestinationEntriesFormula(0, totalEntries, spaceData);
-
-	cout << "End of possible destinations" << endl;	
-
-	//return to standby mode
-	theState = STANDBY;
-}
-
 void MissionPlan::PrintExplorationDestinations()
 {
 	//the top five destinations
 	int maxEntries = 5;
-	int next = 0;
+	//int next = 0;
+	if(totalEntries < maxEntries)
+	{
+		maxEntries = totalEntries;
+	}
 
 	//create a local variable to prevent unintentional corruption of data on global variable
 	PointTwoD currentList[totalEntries];
 
 	//calculate the top entries	
-	CalculateTopEntries(totalEntries, maxEntries, next, currentList);
+	CalculateTopEntries(totalEntries, maxEntries, currentList);
 	
 	//display processing instruction
 	cout << "Displaying the top 5 destinations.. " << endl;	
@@ -269,7 +303,7 @@ void MissionPlan::PrintExplorationDestinations()
 	//return to standby mode
 	theState = STANDBY;
 }
-float MissionPLan::CalculateDistanceEntries(int minNum, int maxNum, PointTwoD targetArray[])
+float MissionPlan::CalculateDistanceEntries(int minNum, int maxNum, PointTwoD targetArray[])
 {
 	float totalDistance;	
 
@@ -282,32 +316,6 @@ float MissionPLan::CalculateDistanceEntries(int minNum, int maxNum, PointTwoD ta
 	return totalDistance;
 }
 
-void MissionPLan::PrintIndividualTravelDistance()
-{
-	cout << "Displaying all possible destinations.. " << endl;	
-	PrintDestinationEntriesFormula(0, totalEntries, spaceData);
-
-	cout << "End of possible destinations" << endl;	
-
-	//return to standby mode
-	theState = STANDBY;
-}
-
-void MissionPlan::PrintIndividualTravelDistance()
-{
-	cout << "Printing individual travel distances.. " << endl;
-	for(int i = 0; i < totalEntries; i++)
-	{
-		cout << "Entry " << i+1 << endl;
-		cout << spaceData[i].DistanceOutput();
-		
-		if(i != maxNum - 1)
-		{
-			cout << "=================================================================" << endl;
-		}		
-	}
-}
-
 void MissionPlan::PrintTravelDistance()
 {
 	//1 unit = 100 million km
@@ -315,12 +323,12 @@ void MissionPlan::PrintTravelDistance()
 	
 	//the top five destinations
 	int maxEntries = 5;
-	int next = 0;
+	//int next = 0;
 
 	//create a local variable to prevent unintentional corruption of data on global variable
 	PointTwoD currentList[totalEntries];
 	
-	CalculateTopEntries(totalEntries, maxEntries, next, currentList);
+	CalculateTopEntries(totalEntries, maxEntries, currentList);
 
 	cout << "Calculating approximate distance.. " << endl;	
 
@@ -332,22 +340,94 @@ void MissionPlan::PrintTravelDistance()
 	//return to standby mode
 	theState = STANDBY;
 }
-
-void MissionPlan::PrintAllEntries()
+void MissionPlan::DisplayAllEntries(int totalEntries, PointTwoD targetData[])
 {
-	cout << "Displaying all existing entries " << endl;	
-	//print all existing entries
 	for(int i = 0 ; i < totalEntries; i++)
 	{
 		cout << "Entry " << i+1 << endl;
-		cout << currentList[i].ToString();
-		
+		cout << targetData[i].ToString();
+	
 		if(i != totalEntries - 1)
 		{
 			cout << "=================================================================" << endl;
 		}
 	}
 	cout << "End of entry list.."<< endl;
+}
+void MissionPlan::SortedDisplayEntries()
+{
+	int typeOfData;
+	PointTwoD sortedList[totalEntries];
+	
+	//copy over the list to prevent any unintentional modification to the master list
+	for(int i = 0 ; i < totalEntries; i++)
+	{
+		sortedList[i] = spaceData[i];
+	}
+	cout << "=================================================================" << endl;
+	cout << "Choose how you want to display the data (type number 1 or 2)" << endl;
+	cout << "1) Ascending Order X-Coordinate" << endl;
+	cout << "2) Descending Order X-Coordinate" << endl;
+	cout << "3) Ascending Order Y-Coordinate" << endl;
+	cout << "4) Descending Order Y-Coordinate" << endl;
+	
+	cin >> typeOfData;
+	
+	switch(typeOfData)
+	{
+	case 1:		//x coordinate ascending
+		SortAscendingOrderArray(totalEntries, sortedList, X_COORD);
+		break;
+	case 2:		//x coordinate descending
+		SortDescendingOrderArray(totalEntries, sortedList, X_COORD);
+	break;
+	case 3:		//y coordinate ascending
+		SortAscendingOrderArray(totalEntries, sortedList, Y_COORD);
+		break;
+	case 4:		//y coordinate descending
+		SortDescendingOrderArray(totalEntries, sortedList, Y_COORD);
+		break;
+	default:
+		cout << "Choice invalid. Please try again." << endl;
+		cin.clear();
+		cin.ignore();
+		SortedDisplayEntries();		//recursion function to be done here since the user needs to do a new input
+		break;
+	}
+	cout << "Displaying" << endl;
+	DisplayAllEntries(totalEntries, sortedList);
+}
+void MissionPlan::PrintAllEntries()
+{
+	//note: you can't print stuff in ascending or descending order if you only have 1 entry
+	if(totalEntries > 1)
+	{
+		string temp;
+		//let the user choose in what order he would like to display the entries as
+		cout << "=================================================================" << endl;
+		cout << "Would you like to display the entries as it is?" << endl;
+		cout << "Y = YES" << endl;
+		cout << "N = NO" << endl;
+	
+		cin >> temp;
+
+		//change temp string into upper case
+		transform(temp.begin(), temp.end(), temp.begin(), ::toupper);
+	
+		if(temp == "Y")
+		{
+			DisplayAllEntries(totalEntries, spaceData);
+		}
+		else if(temp == "N")
+		{
+			SortedDisplayEntries();
+		}
+	}	
+	else
+	{
+		DisplayAllEntries(totalEntries, spaceData);
+	}
+	
 	//return to standby mode
 	theState = STANDBY;
 }

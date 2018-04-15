@@ -6,13 +6,28 @@ PointTwoD::PointTwoD()
 	//set coordinates to 0, 0
 	SetCoordinates(0, 0);
 	
+	//set civ index to be 0
+	SetCivIndex(0.0f);	
+	
 	//calculate the distance from space center
 	SetDistanceFromSpaceCtr();
 
 	//use default constructor of locationData
 	locationData = LocationData();
 }
+PointTwoD::PointTwoD(int x, int y, string newSunType, int numEarthLikePlanets, int numEarthLikeMoons, float particleDensity, float plasmaDensity)
+{
+	//set coordinates based on input x and y
+	SetCoordinates(x, y);
 
+	//set civ index to be 0
+	SetCivIndex(0.0f);	
+
+	//calculate the distance from space center
+	SetDistanceFromSpaceCtr();
+	
+	locationData = LocationData(newSunType, numEarthLikePlanets, numEarthLikeMoons, particleDensity, plasmaDensity);
+}
 PointTwoD::PointTwoD(int x, int y, LocationData theData)
 {
 	//set coordinates based on input x and y
@@ -106,7 +121,7 @@ string PointTwoD::ToString()
 	
 	coords =   "Location Coordinates (x, y): (" + coordXToS.str() + ", " + coordYToS.str() + ")" + '\n';
 	civInd =   "Civilization Index         : " + civToS.str() + '\n';
-	distance = "Distance from Center       : " + distFromSpaceCtr + '\n';
+	distance = "Distance from Center       : " + distToS.str() + '\n';
 	locationDataStats = locationData.ToString();
 
 	//chain the data together into a string that can be read by the console
@@ -147,7 +162,7 @@ string PointTwoD::DistanceOutput()
 	distToS << distFromSpaceCtr;
 	
 	coords =   "Location Coordinates (x, y): (" + coordXToS.str() + ", " + coordYToS.str() + ")" + '\n';
-	distance = "Distance from Center       : " + distFromSpaceCtr + '\n';
+	distance = "Distance from Center       : " + distToS.str() + '\n';
 	//chain the data together into a string that can be read by the console
 	temp =  distance + coords;
 

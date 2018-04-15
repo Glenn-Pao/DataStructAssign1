@@ -14,6 +14,7 @@ private:
 public:
 	//========= Constructor and Destructor ==========//
 	PointTwoD();					//default constructor
+	PointTwoD(int x, int y, string newSunType, int numEarthLikePlanets, int numEarthLikeMoons, float particleDensity, float plasmaDensity);
 	PointTwoD(int x, int y, LocationData theData);	//overloaded constructor
 	~PointTwoD();
 	//========= Constructor and Destructor ==========//
